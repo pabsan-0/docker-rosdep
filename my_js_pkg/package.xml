@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>my_js_pkg</name>
+  <version>0.0.0</version>
+  <description>The my_js_pkg package</description>
+  <license>None</license>
+  <maintainer email="johndoe@catec.aero">John Doe</maintainer>
+
+  <!-- Custom deps start here, sorting matters -->
+  <depend>nodejs</depend>
+  <depend>npm</depend>
+  <depend>node_express</depend>
+  
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+</package>

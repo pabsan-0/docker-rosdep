@@ -48,6 +48,15 @@ $ docker compose run my_python_pkg
 # roslaunch my_python_pkg my_python_pkg.launch
 ```
 
+- Run `my_js_pkg`
+
+```
+$ cd my_js_pkg
+$ docker compose run my_js_pkg
+# bash entrypoint.sh
+# rosrun my_js_pkg index.js
+```
+
 - Run `my_utils_pkg`
 
 ```
@@ -167,7 +176,9 @@ icecream:
 
 ### JavaScript
 
-JavaScript dependencies are typically installed via `npm`, and usually reside locally in your file tree. The scarce stablishment of JS in the ROS community means there are no rigid standards on how to structure packages. We recommend installing JS depencencies by using in-place bash scripting (calling `npm`) so you'll have a greater control over their project directories.  
+JavaScript dependencies are typically installed via `npm`, and usually reside locally in your file tree. The scarce stablishment of JS in the ROS community means there are no rigid standards on how to structure packages. Ideally, we'd recommend installing JS depencencies by using in-place bash scripting (calling `npm`) so you'll have a greater control over their project directories, but this is not supported in the rosdep packed with `ros:noetic`. In newer versions of ROS, `rosdep` allows extra installers other than `apt` or `pip`, such as `npm`. 
+
+For now, we must resort to using the `apt` alternatives of node packages. 
 
 - Add keywords for `nodejs`, node package manager `npm`, and dependency `express`.
 
@@ -176,7 +187,7 @@ JavaScript dependencies are typically installed via `npm`, and usually reside lo
 
 <depend>nodejs</depend>
 <depend>npm</depend>
-<depend>express</depend>
+<depend>node_express</depend>
 ```
 
 - Add custom rules for `npm` and `express`
@@ -184,26 +195,30 @@ JavaScript dependencies are typically installed via `npm`, and usually reside lo
 ```
 # rosdep.yaml
 
-nodejs:
-  ubuntu:
-    nodejs
+# node and npm do NOT need custom rules
 
-npm:
-  ubuntu:
-    npm
-
-**UNTESTED**
 express:
-  ubuntu: | 
-    roscd my_js_package && npm i express
+  ubuntu:
+    node-express
 ```
 
 ### In-place bash
 
-Other great use cases for using in-place bash scripting are:
+**No longer supported as of ROS Fuerte.**
+
+Noetic is trapped midway and is quite limited in this regard. 
+
+Great use cases for using in-place bash scripting would be:
 - Cloning and building git repositories
 - Downloading and installing `deb` files from the internet
+- Carefully handling paths when installing packages locally:
 
+```
+# this does not work
+express:
+  ubuntu: | 
+    roscd my_js_pkg && npm i express
+```
 
 ## What's so great about all these
 
