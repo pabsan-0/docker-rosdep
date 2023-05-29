@@ -1,0 +1,13 @@
+version: '3.9'
+
+services:
+    all_my_packages:
+        image: all_my_packages
+        build: .
+        container_name: all_my_packages
+        tty: true
+        stdin_open: true
+        network_mode: host
+        working_dir: /catkin_ws/src/
+        volumes:
+            - $PWD:/catkin_ws/src/

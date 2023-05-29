@@ -1,0 +1,15 @@
+pip:
+  ubuntu:
+    python3-pip
+
+numpy:
+  ubuntu:
+    pip:
+      packages: [numpy]
+  
+icecream:
+  ubuntu:
+    pip:
+      packages: [icecream, time_profiler] 
+
+    

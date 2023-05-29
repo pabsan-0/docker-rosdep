@@ -1,0 +1,12 @@
+#! /usr/bin/env -S tmuxinator start -p
+# Run by executing this file!!
+
+name: my_utils_pkg 
+on_project_exit: tmux kill-session
+windows:        
+  - main:
+      layout: even-horizontal
+      panes:
+        - roscore
+        - sleep 5; rosrun my_python_pkg talker.py
+        - sleep 5; rosrun my_python_pkg listener.py

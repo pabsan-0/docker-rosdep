@@ -1,0 +1,7 @@
+tmux:
+  ubuntu:
+    tmux
+
+tmuxinator:
+  ubuntu:
+    tmuxinator

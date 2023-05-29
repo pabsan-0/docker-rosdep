@@ -1,0 +1,14 @@
+version: '3.9'
+
+services:
+    my_python_pkg:
+        image: my_python_pkg
+        build: .
+        container_name: my_python_pkg
+        tty: true
+        stdin_open: true
+        network_mode: host
+        working_dir: /catkin_ws/src/my_python_pkg
+        volumes:
+            - $PWD:/catkin_ws/src/my_python_pkg
+

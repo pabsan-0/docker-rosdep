@@ -1,0 +1,12 @@
+#! /usr/bin/env -S tmuxinator start -p
+# Run by executing this file!!
+
+name: my_utils_pkg 
+on_project_exit: tmux kill-session
+windows:        
+  - main:
+      layout: even-vertical
+      panes:
+        - roscore
+        - echo  This is only to showcase tmux is installed
+        - echo  As well as tmuxinator

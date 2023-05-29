@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>my_python_pkg</name>
+  <version>0.0.0</version>
+  <description>The my_python_pkg package</description>
+  <license>None</license>
+  <maintainer email="johndoe@catec.aero">John Doe</maintainer>
+
+  <!-- ROS base dependencies - do not need to be ROS, but parsable by default -->
+  <depend>rospy</depend>
+
+  <!-- Custom deps start here, sorting matters. Install pip first -->
+  <depend>pip</depend>
+  <depend>numpy</depend>
+  <depend>icecream</depend>
+    
+  <buildtool_depend>catkin</buildtool_depend>
+
+</package>
