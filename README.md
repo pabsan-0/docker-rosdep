@@ -1,8 +1,11 @@
-# docker-rosdep
+# docker_rosdep
 
 This repo showcases how to use `rosdep` to install arbitrary packages, making docker ROS packaging easier and more maintainable. It also shows the most basic features of using custom rules with rosdep
 
 This targets `ros:noetic` containers. Rosdep distributions might be different in other installs
+
+[TOC]
+
 
 ## The problem 
 
@@ -220,6 +223,7 @@ express:
  
 
 There's probably a way to make this work, but I have chosen not to invest that much time here.  Great use cases for using in-place bash scripting would be:
+
 - Cloning and building git repositories
 - Downloading and installing `deb` files from the internet
 - Carefully handling paths when installing packages locally:
