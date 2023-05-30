@@ -1,7 +1,8 @@
 # docker-rosdep
 
-This repo showcases how to use `rosdep` to install arbitrary packages, making docker ROS packaging easier.
+This repo showcases how to use `rosdep` to install arbitrary packages, making docker ROS packaging easier and more maintainable. It also shows the most basic features of using custom rules with rosdep
 
+This targets `ros:noetic` containers. Rosdep distributions might be different in other installs
 
 ## The problem 
 
@@ -30,6 +31,7 @@ This repo focuses on making your life easier regarding dependency handling by us
 This repo packages two separate demo ROS packages:
 
 - `my_python_pkg`: A simple python rostopic talker-listener  
+- `my_js_pkg`: A simple JS node that lifts a local website  
 - `my_utils_pkg`: A simple tmux wrapper over the other package  
 
 These are dockerized at package and multipackage level *at the same time*, their dependencies managed by custom rules in `rosdep.yaml` files. Notice:
@@ -74,7 +76,7 @@ $ docker compose run all_my_packages
 # rosrun my_utils_package tmuxinator.yml
 ```
 
-If you need a refresher, docker `compose` and `entrypoint` are explained here [docker-reminder.md](doc/docker-reminder.md). I'm making the user (you) call "entrypoint" by hand on purpose so you can fiddle around, but normally it'd be automated.
+If you need a refresher, docker `compose` and `entrypoint` are explained here [docker-reminder.md](doc/docker-reminder.md). I'm making the user (you) call "entrypoint" by hand on purpose so you can fiddle around, but normally it'd be automated. Also the rosdep installing would probably go inside the Dockerfile to be run at build time.
 
 ## Managing dependencies with rosdep
 
@@ -106,7 +108,7 @@ apt update
 rosdep install --from-paths /catkin_ws/src/ -y
 ```
 
-Custom rules for `rosdep` are not limited to installing through the `apt` package manager and can even carry bash instructions to perform builds and installations manually. Continue reading for practical shorts on installing dependencies in different contexts.
+Custom rules for `rosdep` are not limited to installing through the `apt` package manager and can even carry bash instructions to perform builds and installations manually (not so easy in `ros:noetic`). Continue reading for practical shorts on installing dependencies in different contexts.
 
 
 
@@ -178,7 +180,7 @@ icecream:
 
 JavaScript dependencies are typically installed via `npm`, and usually reside locally in your file tree. The scarce stablishment of JS in the ROS community means there are no rigid standards on how to structure packages. Ideally, we'd recommend installing JS depencencies by using in-place bash scripting (calling `npm`) so you'll have a greater control over their project directories, but this is not supported in the rosdep packed with `ros:noetic`. In newer versions of ROS, `rosdep` allows extra installers other than `apt` or `pip`, such as `npm`. 
 
-For now, we must resort to using the `apt` alternatives of node packages. 
+For now, docker `ros:noetic` standard users must resort to using the `apt` alternatives of node packages. 
 
 - Add keywords for `nodejs`, node package manager `npm`, and dependency `express`.
 
@@ -196,6 +198,7 @@ For now, we must resort to using the `apt` alternatives of node packages.
 # rosdep.yaml
 
 # node and npm do NOT need custom rules
+# npm it not neccesary unless you're installing things by hand
 
 express:
   ubuntu:
@@ -204,23 +207,26 @@ express:
 
 ### In-place bash
 
-**No longer supported as of ROS Fuerte.**
+**Not so easily supported as the rosdocs say.**
 
-Noetic is trapped midway and is quite limited in this regard. 
-
-Great use cases for using in-place bash scripting would be:
-- Cloning and building git repositories
-- Downloading and installing `deb` files from the internet
-- Carefully handling paths when installing packages locally:
-
+Noetic is trapped in between versions and cannot do this as easily as it was before. In place bash scripting looks like this:
 ```
 # this does not work
 express:
   ubuntu: | 
-    roscd my_js_pkg && npm i express
+    roscd my_js_pkg
+    npm i express
 ```
+ 
 
-## What's so great about all these
+There's probably a way to make this work, but I have chosen not to invest that much time here.  Great use cases for using in-place bash scripting would be:
+- Cloning and building git repositories
+- Downloading and installing `deb` files from the internet
+- Carefully handling paths when installing packages locally:
+
+
+
+## What's so great about all this
 
 - Readably define all your deps in the same place
 - Superior package flexibility
@@ -229,12 +235,17 @@ express:
 
 ## Diving deeper
 
-- Custom OS definition can be passed as arg: might help jetson vs workstation package exclusivity
+- Custom OS definition can be passed as arg: might help jetson vs workstation package exclusivity (both are ubuntu)
 - Dependency grouping: see `time_profiler` inside [my_python_pkg/rosdep.yaml](my_python_pkg/rosdep.yaml)
 - Further reading:
-    - http://docs.ros.org/en/independent/api/rosdep/html/commands.html
-    - http://wiki.ros.org/rosdep/rosdep.yaml
-    - https://github.com/ros/rosdistro/blob/master/rosdep/
+    - http://wiki.ros.org/rosdep/rosdep.yaml - deprecated info regarding bash scripting
+    - https://github.com/ros/rosdistro/blob/master/rosdep/ -
+    - https://docs.ros.org/en/independent/api/rosdep/html/ - rosdep docs
+    - https://docs.ros.org/en/independent/api/rosdep/html/commands.html - rosdep docs / commands
+    - https://github.com/ros-infrastructure/rosdep - rosdep repo
+    - https://www.ros.org/reps/rep-0111.html - rosdep REP
+    - https://ros.org/reps/rep-0112.html - source installer rosdep REP
+
 
 ## Contact
 
