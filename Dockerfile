@@ -10,4 +10,4 @@ RUN apt update && apt install -y vim
 
 
 ENTRYPOINT ["bash", "-c"]
-CMD ["/catkin_ws/src/entrypoint.sh"]
+CMD ["bash"]

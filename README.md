@@ -35,32 +35,32 @@ This repo packages two separate demo ROS packages:
 
 - `my_python_pkg`: A simple python rostopic talker-listener 
 - `my_js_pkg`: A simple JS node that lifts a local website
+- `my_source_pkg`: A simple package carrying a dependency installed through a custom `bash` script
 - `my_utils_pkg`: A simple tmux wrapper over the other package installed through `apt`
-- `my_source_pkg`: A fake package carrying a dependency installed through a custom `bash` script
 
 These are dockerized at package and multipackage level *at the same time*, their dependencies managed by custom rules in `rosdep.yaml` files. Notice:
 
 - Dockerfiles are almost equal and free of dependency installs
-- Some login operations are needed through a docker `entrypoint.sh`
+- The actual dependency installation is made by an user call to `rdinstall.sh`, which does some additional stuff
 
-Do run and test them. They are all `ros:noetic` base images with extra packages installed via `rosdep`. Keep reading for implementation details on how this is achieved. 
-
-- Run `my_python_pkg`
-
-```
-$ cd my_python_pkg
-$ docker compose run my_python_pkg
-# bash entrypoint.sh
-# roslaunch my_python_pkg my_python_pkg.launch
-```
+Do run and test them. They are all `ros:noetic` base images with extra packages installed via `rosdep`. Keep reading for implementation details on how this is achieved. If you need a refresher, docker `compose` is explained here [docker-reminder.md](doc/docker-reminder.md).
 
 - Run `my_js_pkg`
 
 ```
 $ cd my_js_pkg
 $ docker compose run my_js_pkg
-# bash entrypoint.sh
+# bash rdinstall.sh
 # rosrun my_js_pkg index.js
+```
+
+- Run `my_python_pkg`
+
+```
+$ cd my_python_pkg
+$ docker compose run my_python_pkg
+# bash rdinstall.sh
+# roslaunch my_python_pkg my_python_pkg.launch
 ```
 
 - Run `my_source_pkg`
@@ -68,7 +68,7 @@ $ docker compose run my_js_pkg
 ```
 $ cd my_source_pkg
 $ docker compose run my_source_pkg
-# bash entrypoint.sh
+# bash rdinstall.sh
 # rosrun my_source_pkg pacvim_bringup.sh
 ```
 
@@ -77,19 +77,19 @@ $ docker compose run my_source_pkg
 ```
 $ cd my_utils_pkg
 $ docker compose run my_utils_pkg
-# bash entrypoint.sh
+# bash rdinstall.sh
 # rosrun my_utils_pkg standalone.yml
 ```
 
-- Run both packages together from upper dir image:
+- Run all packages together from upper dir image:
 
 ```
 $ docker compose run all_my_packages
-# bash entrypoint.sh
+# bash rdinstall.sh
 # rosrun my_utils_package tmuxinator.yml
 ```
 
-If you need a refresher, docker `compose` and `entrypoint` are explained here [docker-reminder.md](doc/docker-reminder.md). I'm making the user (you) call "entrypoint" by hand on purpose so you can fiddle around, but normally it'd be automated. Also the rosdep installing would probably go inside the Dockerfile to be run at build time.
+
 
 ## Managing dependencies with rosdep
 
@@ -127,7 +127,7 @@ Custom rules for `rosdep` are not limited to installing through the `apt` packag
 
 ## Dependencies for different contexts
 
-### ROS
+### ROS packages
 
 ROS dependencies should already be in your ROS distribution index. No custom `rosdep.yaml` file should be neccesary. Simply write the ROS alias of the dependency in `package.xml`.
 ```
@@ -138,9 +138,9 @@ ROS dependencies should already be in your ROS distribution index. No custom `ro
 
 This will typically draw from `ros-noetic-<pkg_name>`. In this case, rosdep will `apt install ros-noetic-rospy`.
 
-### C/C++
+### APT packages
 
-Ubuntu C/C++ dependencies can usually be installed through `apt`. Here's how you would install `tmux` through rosdep:
+Ubuntu-like dependencies can usually be installed through `apt`. Here's how you would install `tmux` through rosdep:
 
 - Add the keyword to the package dependencies in `package.xml`.
   
@@ -160,7 +160,7 @@ tmux:
     tmux
 ```
 
-### Python
+### Python packages
 
 Python dependencies are installed through the `pip` package manager. Typically, you'll need to install it first, so an `apt` rule should be added for it.
 
@@ -188,7 +188,7 @@ icecream:
       packages: [icecream]
 ```
 
-### JavaScript
+### JavaScript packages
 
 JavaScript dependencies are typically installed via `npm`, and usually reside locally in your file tree. The scarce stablishment of JS in the ROS community means there are no rigid standards on how to structure packages. Ideally, we'd recommend installing JS depencencies by using in-place bash scripting (calling `npm`) so you'll have a greater control over their project directories, but this is not supported in the rosdep packed with `ros:noetic`. In newer versions of ROS, `rosdep` allows extra installers other than `apt` or `pip`, such as `npm`. 
 
@@ -219,7 +219,7 @@ express:
 
 ### Source installs
 
-Noetic is trapped in between versions and cannot do this as easily as it was before. Nowadays you need to reference a `.rdmanifest`. Check out `my_source_pkg` for a detailed example. Here's how a `rosdep.yaml` entry should look:
+This category comprises custom installs via shell scripts. Noetic is trapped in between versions and cannot do this as easily as it was before. Check out `my_source_pkg` for a detailed example. Here's how a `rosdep.yaml` entry should look:
 
 ```
 pacvim:
@@ -228,13 +228,13 @@ pacvim:
       uri: 'file:///catkin_ws/src/my_source_pkg/rosdep/pacvim.rdmanifest'
 ```
  
-The `.rdmanifest` file carries three fields:
+Note how `rosdep.yaml` references a `.rdmanifest` file. This file should carry three fields:
 
 - The uri of a source tar file. If you're not packaging tar files but downloading from the internet, the common practice is to ship an empty tar file along with your package and reference its uri. 
 - The installation script, with its proper shebang.
 - A verification script that returns `exit 0` if the program is properly installed.
 
-Here
+Here's an example of a `.rdmanifest` file:
 
 ```
 uri: 'file:///catkin_ws/src/my_source_pkg/rosdep/empty.tar'
@@ -249,7 +249,7 @@ check-presence-script: |
 
 ## What's so great about all this
 
-- Readably define all your deps in the same place
+- Consistently define all your deps in the same place
 - Superior package flexibility
 - Super maintainable, reusable, boilerplatey `docker` assets
 
