@@ -1,0 +1,4 @@
+pacvim:
+  ubuntu:
+    source:
+      uri: 'file:///catkin_ws/src/my_source_pkg/rosdep/pacvim.rdmanifest'

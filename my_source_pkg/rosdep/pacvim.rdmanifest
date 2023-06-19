@@ -1,0 +1,19 @@
+## Greatly inspired from https://github.com/magazino/pylon_camera/blob/indigo-devel/rosdep/pylon_sdk.rdmanifest
+
+uri: 'file:///catkin_ws/src/my_source_pkg/rosdep/empty.tar'
+install-script: |
+    #!/bin/bash
+
+    # Not great! but dependencies' dependencies should not be in package.xml 
+    # according to ros docs.
+    sudo apt-get -y install libncurses5-dev
+
+    cd $(mktemp -d)
+    git clone https://github.com/jmoon018/PacVim
+    cd PacVim
+    sudo make install
+
+check-presence-script: | 
+    #!/bin/bash
+
+    ls /usr/local/bin/pacvim && exit 0 || exit 1

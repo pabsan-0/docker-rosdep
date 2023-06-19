@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 3.0.2)
+project(my_source_pkg)
+find_package(catkin REQUIRED)
+catkin_package()
+include_directories()

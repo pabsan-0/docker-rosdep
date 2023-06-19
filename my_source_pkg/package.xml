@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>my_source_pkg</name>
+  <version>0.0.0</version>
+  <description>The my_source_pkg package</description>
+  <license>None</license>
+  <maintainer email="johndoe@catec.aero">John Doe</maintainer>
+
+  <!-- Custom deps start here, sorting matters -->
+  <depend>git</depend>
+  <depend>pacvim</depend>
+  
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+</package>
