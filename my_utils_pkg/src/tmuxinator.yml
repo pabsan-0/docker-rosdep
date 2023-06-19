@@ -11,4 +11,4 @@ windows:
         - rosrun my_js_pkg index.js
         - sleep 5; rosrun my_python_pkg talker.py
         - sleep 5; rosrun my_python_pkg listener.py
-        - sleep 5; pacvim
+        - sleep 5; rosrun my_python_pkg pacvim_bringup.sh

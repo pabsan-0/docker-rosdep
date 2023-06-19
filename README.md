@@ -33,9 +33,10 @@ This repo focuses on making your life easier regarding dependency handling by us
 
 This repo packages two separate demo ROS packages:
 
-- `my_python_pkg`: A simple python rostopic talker-listener  
-- `my_js_pkg`: A simple JS node that lifts a local website  
-- `my_utils_pkg`: A simple tmux wrapper over the other package  
+- `my_python_pkg`: A simple python rostopic talker-listener 
+- `my_js_pkg`: A simple JS node that lifts a local website
+- `my_utils_pkg`: A simple tmux wrapper over the other package installed through `apt`
+- `my_source_pkg`: A fake package carrying a dependency installed through a custom `bash` script
 
 These are dockerized at package and multipackage level *at the same time*, their dependencies managed by custom rules in `rosdep.yaml` files. Notice:
 
@@ -60,6 +61,15 @@ $ cd my_js_pkg
 $ docker compose run my_js_pkg
 # bash entrypoint.sh
 # rosrun my_js_pkg index.js
+```
+
+- Run `my_source_pkg`
+
+```
+$ cd my_source_pkg
+$ docker compose run my_source_pkg
+# bash entrypoint.sh
+# rosrun my_source_pkg pacvim_bringup.sh
 ```
 
 - Run `my_utils_pkg`
@@ -112,7 +122,6 @@ rosdep install --from-paths /catkin_ws/src/ -y
 ```
 
 Custom rules for `rosdep` are not limited to installing through the `apt` package manager and can even carry bash instructions to perform builds and installations manually (not so easy in `ros:noetic`). Continue reading for practical shorts on installing dependencies in different contexts.
-
 
 
 
@@ -208,27 +217,35 @@ express:
     node-express
 ```
 
-### In-place bash
+### Source installs
 
-**Not so easily supported as the rosdocs say.**
+Noetic is trapped in between versions and cannot do this as easily as it was before. Nowadays you need to reference a `.rdmanifest`. Check out `my_source_pkg` for a detailed example. Here's how a `rosdep.yaml` entry should look:
 
-Noetic is trapped in between versions and cannot do this as easily as it was before. In place bash scripting looks like this:
 ```
-# this does not work
-express:
-  ubuntu: | 
-    roscd my_js_pkg
-    npm i express
+pacvim:
+  ubuntu:
+    source:
+      uri: 'file:///catkin_ws/src/my_source_pkg/rosdep/pacvim.rdmanifest'
 ```
  
+The `.rdmanifest` file carries three fields:
 
-There's probably a way to make this work, but I have chosen not to invest that much time here.  Great use cases for using in-place bash scripting would be:
+- The uri of a source tar file. If you're not packaging tar files but downloading from the internet, the common practice is to ship an empty tar file along with your package and reference its uri. 
+- The installation script, with its proper shebang.
+- A verification script that returns `exit 0` if the program is properly installed.
 
-- Cloning and building git repositories
-- Downloading and installing `deb` files from the internet
-- Carefully handling paths when installing packages locally:
+Here
 
+```
+uri: 'file:///catkin_ws/src/my_source_pkg/rosdep/empty.tar'
+install-script: |
+    #!/bin/bash
+    apt install my_program
 
+check-presence-script: | 
+    #!/bin/bash
+    ls /usr/local/bin/my_program && exit 0 || exit 1
+```
 
 ## What's so great about all this
 
