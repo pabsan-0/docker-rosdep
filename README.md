@@ -4,8 +4,22 @@ This repo showcases how to use `rosdep` to install arbitrary packages, making do
 
 This targets `ros:noetic` containers. Rosdep distributions might be different in other installs
 
-[TOC]
 
+<!-- vim-markdown-toc GFM -->
+
+* [The problem](#the-problem)
+* [Repo contents](#repo-contents)
+* [Managing dependencies with rosdep](#managing-dependencies-with-rosdep)
+* [Dependencies for different contexts](#dependencies-for-different-contexts)
+    * [ROS packages](#ros-packages)
+    * [APT packages](#apt-packages)
+    * [Python packages](#python-packages)
+    * [JavaScript packages](#javascript-packages)
+    * [Source installs](#source-installs)
+* [What's so great about all this](#whats-so-great-about-all-this)
+* [Diving deeper](#diving-deeper)
+
+<!-- vim-markdown-toc -->
 
 ## The problem 
 
@@ -266,8 +280,3 @@ check-presence-script: |
     - https://github.com/ros-infrastructure/rosdep - rosdep repo
     - https://www.ros.org/reps/rep-0111.html - rosdep REP
     - https://ros.org/reps/rep-0112.html - source installer rosdep REP
-
-
-## Contact
-
-Pablo Santana -> psantana@catec.aero
